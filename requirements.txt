@@ -1,0 +1,16 @@
+asgiref==3.12.1
+diff-match-patch==20241021
+django==5.2.17
+django-filter==26.1
+django-import-export==4.4.1
+django-jazzmin==3.0.5
+django-js-asset==4.2.0
+django-mptt==0.18.0
+-e file:///C:/Users/KaDiRKuLoV/Desktop/Python/11-modul%20django/FINAL
+pillow==12.3.0
+psycopg2-binary==2.9.13
+python-dotenv==1.2.3
+sqlparse==0.6.0
+tablib==3.10.0
+typing-extensions==4.16.0
+tzdata==2026.4

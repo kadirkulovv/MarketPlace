@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "psycopg2-binary>=2.9.13",
+]
 
 [project.scripts]
 final = "final:main"
