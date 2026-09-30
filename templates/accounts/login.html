@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Tizimga kirish — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 50px; padding-bottom: 70px;">
+  <div style="max-width: 440px; margin: 0 auto; background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-xl);">
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <div style="width: 54px; height: 54px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 12px;">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h2 style="font-size: 1.7rem; margin-bottom: 6px;">Xush kelibsiz!</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+    </div>
+
+    <form method="POST" action="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
+      {% csrf_token %}
+      
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" style="margin-bottom: 20px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_username">Foydalanuvchi nomi</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <span class="form-error">{{ form.username.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group" style="position: relative;">
+        <label class="form-label" for="id_password">Parol</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <span class="form-error">{{ form.password.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+        <span>Kirish</span>
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-light); font-size: 0.95rem; color: var(--text-muted);">
+      Hali profilingiz yo'qmi? 
+      <a href="{% url 'accounts:register' %}" style="color: var(--primary); font-weight: 700;">Ro'yxatdan o'ting</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtma qabul qilindi — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 60px; padding-bottom: 80px;">
+  <div style="max-width: 600px; margin: 0 auto; background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 48px; text-align: center; box-shadow: var(--shadow-lg);">
+    
+    <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--success-light); color: var(--success); display: inline-flex; align-items: center; justify-content: center; font-size: 2.4rem; margin-bottom: 20px; animation: pulse 2s infinite;">
+      <i class="fas fa-check"></i>
+    </div>
+
+    <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 10px;">Buyurtmangiz qabul qilindi!</h1>
+    <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 28px;">
+      Buyurtma raqami: <strong style="color: var(--primary);">#{{ order.id }}</strong>
+    </p>
+
+    <div style="background: var(--bg-subtle); border-radius: var(--radius-lg); padding: 22px; text-align: left; margin-bottom: 30px; font-size: 0.95rem;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--text-muted);">Qabul qiluvchi:</span>
+        <strong>{{ order.full_name }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--text-muted);">Telefon:</span>
+        <strong>{{ order.phone }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+        <span style="color: var(--text-muted);">Manzil:</span>
+        <strong style="text-align: right; max-width: 250px;">{{ order.address }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px dashed var(--border-light);">
+        <span style="color: var(--text-muted);">Jami summa:</span>
+        <strong style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; color: var(--primary);">{{ order.total_cost|floatformat:0 }} so'm</strong>
+      </div>
+    </div>
+
+    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 28px;">
+      Tez orada operatorimiz siz bilan bog'lanadi. Buyurtma holatini profilingiz orqali kuzatib borishingiz mumkin.
+    </p>
+
+    <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+      <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-primary">
+        <i class="fas fa-file-invoice"></i> Buyurtma tafsilotlari
+      </a>
+      <a href="{% url 'products:home' %}" class="btn btn-secondary">
+        <i class="fas fa-home"></i> Bosh sahifa
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

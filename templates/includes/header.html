@@ -1,0 +1,133 @@
+{% load static %}
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="{% url 'products:home' %}" class="brand-logo">
+        <i class="fas fa-bag-shopping"></i>
+        <span>MarketPlace</span>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="header-search">
+        <form action="{% url 'products:home' %}" method="GET" class="search-form">
+          <i class="fas fa-magnifying-glass search-icon"></i>
+          <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="search-input" placeholder="Mahsulotlarni qidirish...">
+          <button type="submit" class="search-submit" title="Qidirish">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        
+        <!-- Cart Action -->
+        <a href="{% url 'cart:cart_detail' %}" class="action-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span>Savat</span>
+          <span class="action-badge nav-cart-count" style="display: {% if nav_cart_count > 0 %}flex{% else %}none{% endif %};">
+            {{ nav_cart_count|default:0 }}
+          </span>
+        </a>
+
+        {% if user.is_authenticated %}
+          <!-- User Authenticated Menu -->
+          <div class="dropdown-container">
+            <button class="action-btn btn-primary-grad" style="border: none; cursor: pointer;">
+              {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.username }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+              {% else %}
+                <i class="fas fa-user-circle"></i>
+              {% endif %}
+              <span>{{ user.username }}</span>
+              <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+            </button>
+
+            <div class="dropdown-menu">
+              {% if user.is_seller %}
+                <a href="{% url 'dashboard:seller_dashboard' %}" class="dropdown-item" style="color: var(--primary); font-weight: 700;">
+                  <span><i class="fas fa-chart-line" style="margin-right: 8px;"></i> Sotuvchi kabineti</span>
+                  <span class="badge badge-primary">Sotuvchi</span>
+                </a>
+                <a href="{% url 'dashboard:seller_products' %}" class="dropdown-item">
+                  <span><i class="fas fa-box" style="margin-right: 8px;"></i> Mening mahsulotlarim</span>
+                </a>
+                <a href="{% url 'dashboard:seller_orders' %}" class="dropdown-item">
+                  <span><i class="fas fa-receipt" style="margin-right: 8px;"></i> Tushgan buyurtmalar</span>
+                </a>
+                <div style="border-top: 1px solid var(--border-light); margin: 6px 0;"></div>
+              {% else %}
+                <a href="{% url 'orders:order_history' %}" class="dropdown-item">
+                  <span><i class="fas fa-clock-rotate-left" style="margin-right: 8px;"></i> Buyurtmalarim</span>
+                </a>
+              {% endif %}
+
+              <a href="{% url 'accounts:profile' %}" class="dropdown-item">
+                <span><i class="fas fa-id-badge" style="margin-right: 8px;"></i> Profilni tahrirlash</span>
+              </a>
+
+              {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="dropdown-item" target="_blank">
+                  <span><i class="fas fa-shield-halved" style="margin-right: 8px;"></i> Admin panel</span>
+                </a>
+              {% endif %}
+
+              <div style="border-top: 1px solid var(--border-light); margin: 6px 0;"></div>
+              <a href="{% url 'accounts:logout' %}" class="dropdown-item" style="color: var(--danger);">
+                <span><i class="fas fa-arrow-right-from-bracket" style="margin-right: 8px;"></i> Tizimdan chiqish</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <!-- Guest User Buttons -->
+          <a href="{% url 'accounts:login' %}" class="action-btn">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+            <span>Kirish</span>
+          </a>
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm">
+            <span>Ro'yxatdan o'tish</span>
+          </a>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Category Tree Bar -->
+  <div class="sub-nav">
+    <div class="container">
+      <div class="sub-nav-inner">
+        <a href="{% url 'products:home' %}" class="cat-nav-link {% if not current_category %}active{% endif %}">
+          <i class="fas fa-th-large"></i> Barchasi
+        </a>
+        
+        {% for cat in nav_categories %}
+          {% if cat.children.all %}
+            <div class="dropdown-container">
+              <a href="{{ cat.get_absolute_url }}" class="cat-nav-link">
+                {{ cat.name }} <i class="fas fa-chevron-down" style="font-size: 0.7rem; margin-left: 3px;"></i>
+              </a>
+              <div class="dropdown-menu">
+                {% for sub in cat.children.all %}
+                  <a href="{{ sub.get_absolute_url }}" class="dropdown-item">
+                    <span>{{ sub.name }}</span>
+                    {% if sub.children.all %}
+                      <i class="fas fa-angle-right" style="font-size: 0.8rem; color: var(--text-light);"></i>
+                    {% endif %}
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          {% else %}
+            <a href="{{ cat.get_absolute_url }}" class="cat-nav-link">
+              {{ cat.name }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</header>

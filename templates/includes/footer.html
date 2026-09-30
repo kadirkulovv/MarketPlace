@@ -1,0 +1,62 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      
+      <div class="footer-col">
+        <div class="brand-logo" style="margin-bottom: 16px;">
+          <i class="fas fa-bag-shopping" style="color: #818cf8;"></i>
+          <span style="color: white; -webkit-text-fill-color: initial;">MarketPlace</span>
+        </div>
+        <p style="font-size: 0.95rem; line-height: 1.7; margin-bottom: 20px;">
+          Cheksiz chuqurlikdagi kategoriyalar daraxtiga ega, ko'p sotuvchili (multi-vendor) eng zamonaviy onlayn savdo maydonchasi.
+        </p>
+        <div style="display: flex; gap: 14px;">
+          <a href="#" class="action-icon-btn" style="background: #1e293b; color: white; border-color: #334155;"><i class="fab fa-telegram"></i></a>
+          <a href="#" class="action-icon-btn" style="background: #1e293b; color: white; border-color: #334155;"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="action-icon-btn" style="background: #1e293b; color: white; border-color: #334155;"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Xaridorlar uchun</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'products:home' %}">Bosh sahifa</a></li>
+          <li><a href="{% url 'cart:cart_detail' %}">Savatcha</a></li>
+          {% if user.is_authenticated and not user.is_seller %}
+            <li><a href="{% url 'orders:order_history' %}">Mening buyurtmalarim</a></li>
+          {% endif %}
+          <li><a href="{% url 'accounts:register' %}?role=buyer">Xaridor sifatida ro'yxatdan o'tish</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Sotuvchilar uchun</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'accounts:register' %}?role=seller">Sotuvchi bo'lish</a></li>
+          {% if user.is_authenticated and user.is_seller %}
+            <li><a href="{% url 'dashboard:seller_dashboard' %}">Boshqaruv paneli</a></li>
+            <li><a href="{% url 'dashboard:seller_products' %}">Mahsulotlarni boshqarish</a></li>
+            <li><a href="{% url 'dashboard:seller_orders' %}">Tushgan buyurtmalar</a></li>
+          {% else %}
+            <li><a href="{% url 'accounts:login' %}">Sotuvchi sifatida kirish</a></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Bog'lanish</h4>
+        <ul class="footer-links" style="font-size: 0.9rem;">
+          <li><i class="fas fa-location-dot" style="margin-right: 8px; color: #818cf8;"></i> Toshkent sh., O'zbekiston</li>
+          <li><i class="fas fa-phone" style="margin-right: 8px; color: #818cf8;"></i> +998 (71) 200-00-00</li>
+          <li><i class="fas fa-envelope" style="margin-right: 8px; color: #818cf8;"></i> info@marketplace.uz</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 MarketPlace. Barcha huquqlar himoyalangan.</p>
+      <p style="color: #64748b;">Django 5 &bull; django-mptt &bull; django-jazzmin</p>
+    </div>
+  </div>
+</footer>

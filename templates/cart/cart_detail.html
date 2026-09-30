@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Savatcha — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 36px; padding-bottom: 70px;">
+  
+  <div style="margin-bottom: 28px;">
+    <h1 style="font-size: 2rem; font-weight: 800;">Savatchangiz</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Buyurtma berishdan oldin tanlagan mahsulotlaringizni tekshiring</p>
+  </div>
+
+  <!-- Cart Content Area (if items exist) -->
+  <div id="cart-content-wrapper" style="display: {% if cart_items %}grid{% else %}none{% endif %}; grid-template-columns: 1fr 340px; gap: 32px; align-items: start;">
+    
+    <!-- Left: Cart Items List Table -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm);">
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Mahsulot</th>
+              <th>Narxi</th>
+              <th style="text-align: center;">Miqdori</th>
+              <th>Jami</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in cart_items %}
+              <tr id="cart-row-{{ item.id }}">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="width: 64px; height: 64px; border-radius: var(--radius-md); overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light); flex-shrink: 0;">
+                      {% if item.product.main_image %}
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                      {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #cbd5e1;">
+                          <i class="fas fa-image"></i>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <a href="{{ item.product.get_absolute_url }}" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem; line-height: 1.3; display: block; margin-bottom: 4px;">
+                        {{ item.product.name }}
+                      </a>
+                      <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">
+                        Do'kon: {{ item.product.seller.shop_name|default:item.product.seller.username }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                
+                <td style="font-weight: 600; color: var(--text-muted);">
+                  {{ item.product.current_price|floatformat:0 }} so'm
+                </td>
+
+                <td style="text-align: center;">
+                  <div style="display: inline-flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-subtle);">
+                    <button type="button" class="btn-cart-qty" data-item-id="{{ item.id }}" data-action="decrease" style="border: none; background: transparent; width: 30px; height: 32px; cursor: pointer; color: var(--text-main);">
+                      <i class="fas fa-minus" style="font-size: 0.75rem;"></i>
+                    </button>
+                    <span id="item-qty-{{ item.id }}" style="min-width: 32px; text-align: center; font-weight: 700; font-size: 0.9rem;">
+                      {{ item.quantity }}
+                    </span>
+                    <button type="button" class="btn-cart-qty" data-item-id="{{ item.id }}" data-action="increase" style="border: none; background: transparent; width: 30px; height: 32px; cursor: pointer; color: var(--text-main);">
+                      <i class="fas fa-plus" style="font-size: 0.75rem;"></i>
+                    </button>
+                  </div>
+                </td>
+
+                <td style="font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--text-main); font-size: 1.05rem;" id="item-total-{{ item.id }}">
+                  {{ item.get_total_price|floatformat:0 }} so'm
+                </td>
+
+                <td style="text-align: right;">
+                  <button type="button" class="action-icon-btn delete btn-cart-remove" data-item-id="{{ item.id }}" title="Savatdan o'chirish">
+                    <i class="fas fa-trash-can"></i>
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right: Order Summary Card -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-sm); position: sticky; top: 100px;">
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+        Buyurtma hisobi
+      </h3>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-muted);">
+        <span>Mahsulotlar:</span>
+        <span class="nav-cart-count" style="font-weight: 700; color: var(--text-main);">{{ total_count }} dona</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-muted);">
+        <span>Yetkazib berish:</span>
+        <span style="color: var(--success); font-weight: 700;">Bepul</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 16px; border-top: 1px dashed var(--border-light); margin-bottom: 24px;">
+        <span style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);">Jami to'lov:</span>
+        <div class="cart-total-price" style="font-size: 1.6rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--primary);">
+          {{ total_price|floatformat:0 }} so'm
+        </div>
+      </div>
+
+      <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-block btn-lg" style="box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);">
+        <span>Rasmiylashtirish</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
+
+      <div style="margin-top: 16px; text-align: center;">
+        <a href="{% url 'products:home' %}" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600;">
+          <i class="fas fa-arrow-left" style="margin-right: 4px;"></i> Xaridni davom ettirish
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Empty Cart State -->
+  <div id="cart-empty-wrapper" style="display: {% if not cart_items %}block{% else %}none{% endif %}; text-align: center; padding: 80px 20px; background: white; border-radius: var(--radius-xl); border: 1px dashed var(--border-light);">
+    <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 18px;">
+      <i class="fas fa-cart-shopping"></i>
+    </div>
+    <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 8px;">Savatchangiz bo'sh</h2>
+    <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 24px;">
+      Siz hali hech qanday mahsulot tanlamadingiz. Katalogimizdan o'zingizga ma'qul tovarlarni savatga qo'shing!
+    </p>
+    <a href="{% url 'products:home' %}" class="btn btn-primary btn-lg">
+      <i class="fas fa-bag-shopping"></i> Mahsulotlarni ko'rish
+    </a>
+  </div>
+
+</div>
+{% endblock %}

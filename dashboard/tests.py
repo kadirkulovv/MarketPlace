@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from products.models import Category, Product
+from orders.models import Order, OrderItem
 
 User = get_user_model()
 
@@ -67,7 +68,8 @@ class SellerDashboardLogicTest(TestCase):
 
         # Tahrirlash
         response = self.client.post(reverse('dashboard:product_update', args=[prod.pk]), {
-            'name': prod.name, 'stock': 10, 'price': prod.price, 'category': prod.category.pk
+            'name': prod.name, 'stock': 10, 'price': prod.price, 'category': prod.category.pk,
+            'description': 'Test tavsifi'
         })
         self.assertEqual(response.status_code, 302)
 

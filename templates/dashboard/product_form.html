@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} — Sotuvchi kabineti{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="dashboard-sidebar">
+    <div class="seller-profile-card">
+      <div class="seller-avatar">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+        {% else %}
+          {{ user.username|slice:":1"|upper }}
+        {% endif %}
+      </div>
+      <div class="seller-info">
+        <h4>{{ user.shop_name|default:user.username }}</h4>
+        <p><i class="fas fa-certificate" style="font-size: 0.75rem;"></i> Tasdiqlangan sotuvchi</p>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="{% url 'dashboard:seller_dashboard' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-chart-pie"></i>
+            <span>Boshqaruv paneli</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:seller_products' %}" class="sidebar-link {% if not product %}active{% endif %}">
+          <div class="link-left">
+            <i class="fas fa-box-open"></i>
+            <span>Mening mahsulotlarim</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:seller_orders' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-receipt"></i>
+            <span>Tushgan buyurtmalar</span>
+          </div>
+        </a>
+      </li>
+      <li style="margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 14px;">
+        <a href="{% url 'products:home' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-store"></i>
+            <span>Saytga o'tish</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Form -->
+  <main class="dashboard-main">
+    
+    <div style="max-width: 800px; margin: 0 auto;">
+      
+      <div style="margin-bottom: 24px;">
+        <a href="{% url 'dashboard:seller_products' %}" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <i class="fas fa-arrow-left"></i> Mahsulotlar ro'yxatiga qaytish
+        </a>
+        <h1 class="dashboard-title">{{ title }}</h1>
+      </div>
+
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 36px; box-shadow: var(--shadow-sm);">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="form-group">
+            <label class="form-label" for="id_name">Mahsulot nomi *</label>
+            {{ form.name }}
+            {% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_category">Kategoriya *</label>
+            {{ form.category }}
+            {% if form.category.errors %}<span class="form-error">{{ form.category.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+            <div class="form-group">
+              <label class="form-label" for="id_price">Asl narxi (so'm) *</label>
+              {{ form.price }}
+              {% if form.price.errors %}<span class="form-error">{{ form.price.errors.0 }}</span>{% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="id_discount_price">Chegirmadagi narxi (ixtiyoriy)</label>
+              {{ form.discount_price }}
+              {% if form.discount_price.errors %}<span class="form-error">{{ form.discount_price.errors.0 }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_stock">Ombordagi qoldiq soni (dona) *</label>
+            {{ form.stock }}
+            {% if form.stock.errors %}<span class="form-error">{{ form.stock.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_main_image">Asosiy rasm {% if not product %}*{% endif %}</label>
+            {{ form.main_image }}
+            {% if form.main_image.errors %}<span class="form-error">{{ form.main_image.errors.0 }}</span>{% endif %}
+            
+            {% if product and product.main_image %}
+              <div style="margin-top: 10px;">
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Joriy rasm:</span>
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}" style="max-height: 120px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_description">Batafsil tavsif *</label>
+            {{ form.description }}
+            {% if form.description.errors %}<span class="form-error">{{ form.description.errors.0 }}</span>{% endif %}
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+            {{ form.is_active }}
+            <label for="id_is_active" style="font-size: 0.95rem; font-weight: 600; cursor: pointer;">
+              Mahsulot faol (xaridorlarga ko'rinadi)
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-light);">
+            <a href="{% url 'dashboard:seller_products' %}" class="btn btn-secondary">Bekor qilish</a>
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-save"></i>
+              <span>Saqlash</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

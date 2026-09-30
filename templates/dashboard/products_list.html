@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mening mahsulotlarim — Sotuvchi kabineti{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  
+  <!-- Sidebar -->
+  <aside class="dashboard-sidebar">
+    <div class="seller-profile-card">
+      <div class="seller-avatar">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+        {% else %}
+          {{ user.username|slice:":1"|upper }}
+        {% endif %}
+      </div>
+      <div class="seller-info">
+        <h4>{{ user.shop_name|default:user.username }}</h4>
+        <p><i class="fas fa-certificate" style="font-size: 0.75rem;"></i> Tasdiqlangan sotuvchi</p>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li>
+        <a href="{% url 'dashboard:seller_dashboard' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-chart-pie"></i>
+            <span>Boshqaruv paneli</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:seller_products' %}" class="sidebar-link active">
+          <div class="link-left">
+            <i class="fas fa-box-open"></i>
+            <span>Mening mahsulotlarim</span>
+          </div>
+          <span class="badge badge-secondary" style="background: rgba(255,255,255,0.2); color: white;">{{ products.count }}</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:product_create' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-plus-circle"></i>
+            <span>Yangi mahsulot qo'shish</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'dashboard:seller_orders' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-receipt"></i>
+            <span>Tushgan buyurtmalar</span>
+          </div>
+        </a>
+      </li>
+      <li style="margin-top: 20px; border-top: 1px solid var(--border-light); padding-top: 14px;">
+        <a href="{% url 'products:home' %}" class="sidebar-link">
+          <div class="link-left">
+            <i class="fas fa-store"></i>
+            <span>Saytga o'tish</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    
+    <div class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">Mening mahsulotlarim</h1>
+        <p class="dashboard-subtitle">Do'koningiz tovarlarini tahrirlash, qoldiqni o'zgartirish va boshqarish</p>
+      </div>
+      <div>
+        <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Yangi mahsulot qo'shish
+        </a>
+      </div>
+    </div>
+
+    <!-- Products Table Card -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3 style="font-size: 1.15rem; font-weight: 800;">Barcha tovarlar ({{ products.count }} ta)</h3>
+      </div>
+
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Mahsulot</th>
+              <th>Kategoriya</th>
+              <th>Narx</th>
+              <th>Ombordagi qoldiq</th>
+              <th>Sotildi</th>
+              <th>Holat</th>
+              <th style="text-align: right;">Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: var(--radius-sm); overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light); flex-shrink: 0;">
+                      {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                      {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #cbd5e1;">
+                          <i class="fas fa-image"></i>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <a href="{{ product.get_absolute_url }}" target="_blank" style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;" title="{{ product.name }}">
+                        {{ product.name|truncatechars:30 }}
+                      </a>
+                      <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">Slug: {{ product.slug }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td style="color: var(--text-muted); font-size: 0.88rem;">
+                  {{ product.category.name }}
+                </td>
+
+                <td>
+                  <div style="font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 0.98rem;">
+                    {{ product.current_price|floatformat:0 }} so'm
+                  </div>
+                  {% if product.discount_price %}
+                    <span style="font-size: 0.78rem; color: var(--text-light); text-decoration: line-through;">{{ product.price|floatformat:0 }} so'm</span>
+                  {% endif %}
+                </td>
+
+                <!-- Quick Inline Stock Editor -->
+                <td>
+                  <form class="stock-quick-form stock-control" data-product-id="{{ product.id }}">
+                    {% csrf_token %}
+                    <input type="number" class="stock-input" value="{{ product.stock }}" min="0" title="Ombordagi qoldiq sonini kiriting">
+                    <button type="submit" class="stock-save-btn" title="Qoldiqni saqlash">
+                      <i class="fas fa-check"></i>
+                    </button>
+                  </form>
+                </td>
+
+                <td style="font-weight: 700; color: var(--primary);">
+                  {{ product.total_sold }} dona
+                </td>
+
+                <td>
+                  <span class="badge {% if product.is_active %}badge-success{% else %}badge-secondary{% endif %}">
+                    {% if product.is_active %}Faol{% else %}Nofaol{% endif %}
+                  </span>
+                </td>
+
+                <td style="text-align: right;">
+                  <div class="table-actions" style="justify-content: flex-end;">
+                    <a href="{% url 'dashboard:product_update' product.id %}" class="action-icon-btn" title="Tahrirlash">
+                      <i class="fas fa-pen-to-square"></i>
+                    </a>
+                    <a href="{% url 'dashboard:product_delete' product.id %}" class="action-icon-btn delete" title="O'chirish">
+                      <i class="fas fa-trash-can"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 50px 20px; color: var(--text-muted);">
+                  <div style="font-size: 2rem; color: var(--text-light); margin-bottom: 12px;"><i class="fas fa-box-open"></i></div>
+                  <h4 style="font-size: 1.15rem; margin-bottom: 6px;">Hozircha birorta ham mahsulot qo'shmadingiz</h4>
+                  <p style="font-size: 0.9rem; margin-bottom: 16px;">Birinchi mahsulotingizni joylashtirib, sotuvni boshlang!</p>
+                  <a href="{% url 'dashboard:product_create' %}" class="btn btn-primary btn-sm">Mahsulot qo'shish</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

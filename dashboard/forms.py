@@ -14,3 +14,8 @@ class ProductForm(forms.ModelForm):
             'stock': forms.NumberInput(attrs={'class': 'form-input'}),
             'main_image': forms.FileInput(attrs={'class': 'form-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['main_image'].required = False

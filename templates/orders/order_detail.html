@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Buyurtma #{{ order.id }} tafsilotlari — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 36px; padding-bottom: 70px;">
+  
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+    <div>
+      <a href="{% url 'orders:order_history' %}" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+        <i class="fas fa-arrow-left"></i> Buyurtmalar ro'yxatiga qaytish
+      </a>
+      <h1 style="font-size: 1.8rem; font-weight: 800;">
+        Buyurtma #{{ order.id }} 
+        <span class="badge {{ order.status_badge_class }}" style="font-size: 0.9rem; margin-left: 8px;">
+          {{ order.get_status_display }}
+        </span>
+      </h1>
+      <span style="font-size: 0.88rem; color: var(--text-muted);">
+        Berilgan vaqti: {{ order.created_at|date:"d F Y, H:i" }}
+      </span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start;">
+    
+    <!-- Items Table -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm);">
+      <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-light); font-weight: 700; font-size: 1.05rem;">
+        Buyurtmadagi mahsulotlar ({{ order.total_items_count }} dona)
+      </div>
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Mahsulot</th>
+              <th>Sotuvchi</th>
+              <th>Narx</th>
+              <th>Miqdor</th>
+              <th style="text-align: right;">Jami</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 50px; height: 50px; border-radius: var(--radius-sm); overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light); flex-shrink: 0;">
+                      {% if item.product.main_image %}
+                        <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                      {% endif %}
+                    </div>
+                    <a href="{{ item.product.get_absolute_url }}" style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">
+                      {{ item.product.name }}
+                    </a>
+                  </div>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.88rem;">
+                  {{ item.product.seller.shop_name|default:item.product.seller.username }}
+                </td>
+                <td style="font-weight: 600;">
+                  {{ item.price|floatformat:0 }} so'm
+                </td>
+                <td style="font-weight: 700;">
+                  &times; {{ item.quantity }}
+                </td>
+                <td style="text-align: right; font-weight: 800; font-family: 'Outfit', sans-serif;">
+                  {{ item.get_cost|floatformat:0 }} so'm
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Delivery & Total Breakdown -->
+    <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 24px; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-light);">
+        Yetkazib berish
+      </h3>
+
+      <div style="margin-bottom: 14px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Qabul qiluvchi:</span>
+        <strong style="font-size: 0.95rem;">{{ order.full_name }}</strong>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Telefon:</span>
+        <strong style="font-size: 0.95rem;">{{ order.phone }}</strong>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Yetkazish manzili:</span>
+        <strong style="font-size: 0.92rem; line-height: 1.4; display: block;">{{ order.address }}</strong>
+      </div>
+
+      {% if order.notes %}
+        <div style="margin-bottom: 14px; background: var(--bg-subtle); padding: 10px; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-muted);">
+          <strong>Izoh:</strong> {{ order.notes }}
+        </div>
+      {% endif %}
+
+      <div style="border-top: 1px dashed var(--border-light); padding-top: 16px; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 1rem; font-weight: 700;">Jami summa:</span>
+          <span style="font-size: 1.5rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--primary);">
+            {{ order.total_cost|floatformat:0 }} so'm
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

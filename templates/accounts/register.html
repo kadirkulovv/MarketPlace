@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ro'yxatdan o'tish — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; padding-bottom: 70px;">
+  <div style="max-width: 580px; margin: 0 auto; background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-xl);">
+    
+    <div style="text-align: center; margin-bottom: 28px;">
+      <h2 style="font-size: 1.8rem; margin-bottom: 6px;">Yangi hisob yaratish</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">MarketPlace platformasiga a'zo bo'ling</p>
+    </div>
+
+    <form method="POST" action="{% url 'accounts:register' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- Role Selection Visual Cards -->
+      <div class="form-group">
+        <label class="form-label">Siz kimsiz?</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px;">
+          
+          <label style="border: 2px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: var(--transition);" id="card-buyer">
+            <input type="radio" name="role_selector" value="buyer" checked style="accent-color: var(--primary);">
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem;"><i class="fas fa-cart-shopping" style="color: var(--primary); margin-right: 5px;"></i> Xaridor</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Mahsulot xarid qilish</div>
+            </div>
+          </label>
+
+          <label style="border: 2px solid var(--border-light); border-radius: var(--radius-md); padding: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: var(--transition);" id="card-seller">
+            <input type="radio" name="role_selector" value="seller" style="accent-color: var(--primary);">
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem;"><i class="fas fa-store" style="color: var(--success); margin-right: 5px;"></i> Sotuvchi</div>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Mahsulot sotish</div>
+            </div>
+          </label>
+
+        </div>
+        <!-- Real form field for role -->
+        <div style="display: none;">
+          {{ form.role }}
+        </div>
+      </div>
+
+      <!-- Shop Name (Only for Sellers) -->
+      <div class="form-group shop-name-group" id="div_id_shop_name" style="display: none;">
+        <label class="form-label" for="id_shop_name">Do'koningiz nomi *</label>
+        {{ form.shop_name }}
+        {% if form.shop_name.errors %}
+          <span class="form-error">{{ form.shop_name.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="id_first_name">Ismingiz</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_last_name">Familiyangiz</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_username">Foydalanuvchi nomi (Username) *</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <span class="form-error">{{ form.username.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_email">Email manzili *</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <span class="form-error">{{ form.email.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_phone">Telefon raqami</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+          <span class="form-error">{{ form.phone.errors.0 }}</span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_address">Yetkazib berish manzili</label>
+        {{ form.address }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="id_password">Parol *</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <span class="form-error">{{ form.password.errors.0 }}</span>
+          {% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_confirm_password">Parolni tasdiqlang *</label>
+          {{ form.confirm_password }}
+          {% if form.confirm_password.errors %}
+            <span class="form-error">{{ form.confirm_password.errors.0 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 14px;">
+        <span>Ro'yxatdan o'tish</span>
+        <i class="fas fa-check"></i>
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-light); font-size: 0.95rem; color: var(--text-muted);">
+      Profilingiz bormi? 
+      <a href="{% url 'accounts:login' %}" style="color: var(--primary); font-weight: 700;">Kirish</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth.js' %}"></script>
+<script>
+  // Link visual role cards with Django form role field
+  const roleField = document.getElementById('id_role');
+  const roleRadios = document.querySelectorAll('input[name="role_selector"]');
+  const shopGroup = document.getElementById('div_id_shop_name');
+  const cardBuyer = document.getElementById('card-buyer');
+  const cardSeller = document.getElementById('card-seller');
+
+  function updateRoleUI(val) {
+    if (roleField) roleField.value = val;
+    if (val === 'seller') {
+      shopGroup.style.display = 'block';
+      cardSeller.style.borderColor = 'var(--primary)';
+      cardSeller.style.background = 'var(--primary-light)';
+      cardBuyer.style.borderColor = 'var(--border-light)';
+      cardBuyer.style.background = 'white';
+    } else {
+      shopGroup.style.display = 'none';
+      cardBuyer.style.borderColor = 'var(--primary)';
+      cardBuyer.style.background = 'var(--primary-light)';
+      cardSeller.style.borderColor = 'var(--border-light)';
+      cardSeller.style.background = 'white';
+    }
+  }
+
+  roleRadios.forEach(radio => {
+    radio.addEventListener('change', () => updateRoleUI(radio.value));
+  });
+
+  // Init from query param or initial value
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialRole = urlParams.get('role') || (roleField ? roleField.value : 'buyer');
+  const matchRadio = document.querySelector(`input[name="role_selector"][value="${initialRole}"]`);
+  if (matchRadio) matchRadio.checked = true;
+  updateRoleUI(initialRole);
+</script>
+{% endblock %}

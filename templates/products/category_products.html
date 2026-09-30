@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 30px; padding-bottom: 70px;">
+  
+  <!-- Breadcrumb -->
+  <nav style="margin-bottom: 24px; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <a href="{% url 'products:home' %}" style="color: var(--primary); font-weight: 600;"><i class="fas fa-home"></i> Bosh sahifa</a>
+    {% for ancestor in category.get_ancestors %}
+      <span>/</span>
+      <a href="{{ ancestor.get_absolute_url }}" style="color: var(--primary); font-weight: 600;">{{ ancestor.name }}</a>
+    {% endfor %}
+    <span>/</span>
+    <span style="color: var(--text-main); font-weight: 700;">{{ category.name }}</span>
+  </nav>
+
+  <div style="display: grid; grid-template-columns: 280px 1fr; gap: 32px;">
+    
+    <!-- Sidebar Filters & MPTT Tree -->
+    <aside>
+      
+      <!-- Category Tree Box -->
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+        <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-light);">
+          <i class="fas fa-folder-tree" style="color: var(--primary); margin-right: 6px;"></i> Kategoriyalar
+        </h4>
+
+        {% if category.children.all %}
+          <div style="margin-bottom: 14px;">
+            <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px;">Ichki toifalar:</span>
+            <ul style="list-style: none; margin-top: 8px;">
+              {% for subcat in category.children.all %}
+                <li style="margin-bottom: 6px;">
+                  <a href="{{ subcat.get_absolute_url }}" style="font-size: 0.92rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: var(--radius-sm); transition: var(--transition);" onmouseover="this.style.background='var(--primary-light)'; this.style.color='var(--primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-main)';">
+                    <span><i class="fas fa-angle-right" style="margin-right: 6px; font-size: 0.8rem; color: var(--primary);"></i> {{ subcat.name }}</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); background: var(--bg-subtle); padding: 2px 6px; border-radius: 4px;">{{ subcat.products.count }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if category.parent %}
+          <div style="padding-top: 10px; border-top: 1px dashed var(--border-light);">
+            <a href="{{ category.parent.get_absolute_url }}" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+              <i class="fas fa-arrow-left"></i> {{ category.parent.name }} ga qaytish
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Price & Stock Filters Box -->
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm);">
+        <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-light);">
+          <i class="fas fa-sliders" style="color: var(--primary); margin-right: 6px;"></i> Filtrlash
+        </h4>
+
+        <form method="GET">
+          <div class="form-group">
+            <label class="form-label" style="font-size: 0.85rem;">Mahsulot nomi</label>
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-input" placeholder="Qidirish..." style="padding: 8px 12px; font-size: 0.9rem;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-size: 0.85rem;">Narx oralig'i (so'm)</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <input type="number" name="min_price" value="{{ request.GET.min_price|default:'' }}" class="form-input" placeholder="Min" style="padding: 8px 10px; font-size: 0.88rem;">
+              <span>-</span>
+              <input type="number" name="max_price" value="{{ request.GET.max_price|default:'' }}" class="form-input" placeholder="Maks" style="padding: 8px 10px; font-size: 0.88rem;">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-sm" style="margin-top: 12px;">
+            Qo'llash
+          </button>
+
+          {% if request.GET %}
+            <a href="{{ category.get_absolute_url }}" class="btn btn-secondary btn-block btn-sm" style="margin-top: 8px;">
+              Tozalash
+            </a>
+          {% endif %}
+        </form>
+      </div>
+
+    </aside>
+
+    <!-- Main Products Area -->
+    <main>
+      
+      <!-- Category Header Banner -->
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);">{{ category.name }}</h2>
+          <p style="font-size: 0.92rem; color: var(--text-muted); margin-top: 4px;">
+            Ushbu bo'lim va uning barcha ichki toifalarida jami <strong>{{ total_count }} ta</strong> tovar mavjud
+          </p>
+        </div>
+
+        <!-- Sorting -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 0.88rem; font-weight: 600; color: var(--text-muted);">Saralash:</label>
+          <form method="GET" id="sort-form">
+            <input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
+            <input type="hidden" name="min_price" value="{{ request.GET.min_price|default:'' }}">
+            <input type="hidden" name="max_price" value="{{ request.GET.max_price|default:'' }}">
+            <select name="sort" class="form-select" onchange="document.getElementById('sort-form').submit();" style="padding: 7px 12px; font-size: 0.88rem;">
+              <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Yangi qo'shilganlar</option>
+              <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Narxi: arzondan qimmatga</option>
+              <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Narxi: qimmatdan arzonga</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {% if page_obj.object_list %}
+        <div class="product-grid" style="margin-top: 0;">
+          {% for product in page_obj %}
+            <div class="product-card">
+              <div class="product-image-wrap">
+                {% if product.main_image %}
+                  <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8; font-size: 2.5rem;">
+                    <i class="fas fa-image"></i>
+                  </div>
+                {% endif %}
+
+                {% if product.discount_percent > 0 %}
+                  <span class="badge-discount">-{{ product.discount_percent }}%</span>
+                {% endif %}
+
+                <span class="badge-stock">
+                  {% if product.is_in_stock %}{{ product.stock }} dona{% else %}Qolmagan{% endif %}
+                </span>
+              </div>
+
+              <div class="product-content">
+                <span class="product-category">{{ product.category.name }}</span>
+                <a href="{{ product.get_absolute_url }}" class="product-title" title="{{ product.name }}">
+                  {{ product.name }}
+                </a>
+
+                <div class="product-seller">
+                  <i class="fas fa-store" style="color: var(--primary);"></i>
+                  <span>{{ product.seller.shop_name|default:product.seller.username }}</span>
+                </div>
+
+                <div class="product-pricing">
+                  <div>
+                    {% if product.discount_price %}
+                      <span class="old-price">{{ product.price|floatformat:0 }} so'm</span>
+                    {% endif %}
+                    <div class="current-price">
+                      {{ product.current_price|floatformat:0 }} <span>so'm</span>
+                    </div>
+                  </div>
+
+                  {% if product.is_in_stock %}
+                    <button type="button" class="btn-add-cart ajax-add-to-cart" data-product-id="{{ product.id }}" title="Savatga qo'shish">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+          <div class="pagination">
+            {% if page_obj.has_previous %}
+              <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">
+                <i class="fas fa-chevron-left"></i>
+              </a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <span class="page-link active">{{ num }}</span>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}&q={{ request.GET.q }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">
+                <i class="fas fa-chevron-right"></i>
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+
+      {% else %}
+        <div style="text-align: center; padding: 60px 20px; background: white; border-radius: var(--radius-xl); border: 1px dashed var(--border-light);">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-subtle); display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--text-light); margin-bottom: 14px;">
+            <i class="fas fa-box-open"></i>
+          </div>
+          <h4 style="font-size: 1.2rem; margin-bottom: 6px;">Ushbu kategoriyada tovarlar topilmadi</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">Tez orada yangi mahsulotlar joylashtiriladi.</p>
+          <a href="{% url 'products:home' %}" class="btn btn-primary btn-sm">Bosh sahifaga qaytish</a>
+        </div>
+      {% endif %}
+
+    </main>
+
+  </div>
+</div>
+{% endblock %}

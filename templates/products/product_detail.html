@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — MarketPlace{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 30px; padding-bottom: 70px;">
+  
+  <!-- Breadcrumb -->
+  <nav style="margin-bottom: 24px; font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <a href="{% url 'products:home' %}" style="color: var(--primary); font-weight: 600;"><i class="fas fa-home"></i> Bosh sahifa</a>
+    <span>/</span>
+    {% for anc in product.category.get_ancestors %}
+      <a href="{{ anc.get_absolute_url }}" style="color: var(--primary); font-weight: 600;">{{ anc.name }}</a>
+      <span>/</span>
+    {% endfor %}
+    <a href="{{ product.category.get_absolute_url }}" style="color: var(--primary); font-weight: 600;">{{ product.category.name }}</a>
+    <span>/</span>
+    <span style="color: var(--text-main); font-weight: 700;">{{ product.name|truncatechars:35 }}</span>
+  </nav>
+
+  <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 36px; box-shadow: var(--shadow-sm); margin-bottom: 48px;">
+    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start;">
+      
+      <!-- Left: Image & Gallery -->
+      <div>
+        <div style="position: relative; border-radius: var(--radius-lg); overflow: hidden; background: #f8fafc; border: 1px solid var(--border-light); margin-bottom: 16px; aspect-ratio: 1/1;">
+          {% if product.main_image %}
+            <img id="main-product-image" src="{{ product.main_image.url }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+          {% else %}
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #cbd5e1;">
+              <i class="fas fa-image"></i>
+            </div>
+          {% endif %}
+
+          {% if product.discount_percent > 0 %}
+            <span class="badge-discount" style="font-size: 0.95rem; padding: 6px 12px;">-{{ product.discount_percent }}% Chegirma</span>
+          {% endif %}
+        </div>
+
+        <!-- Thumbnails Gallery -->
+        {% if product.images.all %}
+          <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px;">
+            {% if product.main_image %}
+              <div class="thumb-wrap active" onclick="changeMainImage('{{ product.main_image.url }}', this)" style="width: 68px; height: 68px; border-radius: var(--radius-sm); border: 2px solid var(--primary); overflow: hidden; cursor: pointer; flex-shrink: 0;">
+                <img src="{{ product.main_image.url }}" alt="Main" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+            {% endif %}
+
+            {% for img_obj in product.images.all %}
+              <div class="thumb-wrap" onclick="changeMainImage('{{ img_obj.image.url }}', this)" style="width: 68px; height: 68px; border-radius: var(--radius-sm); border: 2px solid var(--border-light); overflow: hidden; cursor: pointer; flex-shrink: 0; opacity: 0.7; transition: var(--transition);">
+                <img src="{{ img_obj.image.url }}" alt="{{ img_obj.alt_text|default:product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Right: Product Info & Actions -->
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;">
+          <span style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px;">
+            {{ product.category.name }}
+          </span>
+          <span class="badge {% if product.is_in_stock %}badge-success{% else %}badge-danger{% endif %}">
+            <i class="fas {% if product.is_in_stock %}fa-check-circle{% else %}fa-circle-xmark{% endif %}"></i>
+            {% if product.is_in_stock %}Omborda bor ({{ product.stock }} dona){% else %}Mavjud emas{% endif %}
+          </span>
+        </div>
+
+        <h1 style="font-size: 2.2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; color: var(--text-main);">
+          {{ product.name }}
+        </h1>
+
+        <!-- Seller Box -->
+        <div style="display: flex; align-items: center; gap: 14px; background: var(--bg-subtle); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 24px; border: 1px solid var(--border-light);">
+          <div style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+            <i class="fas fa-store"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">Sotuvchi do'koni:</div>
+            <div style="font-size: 0.98rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+              {{ product.seller.shop_name|default:product.seller.username }}
+              {% if product.seller.is_verified %}
+                <i class="fas fa-circle-check" style="color: var(--primary); font-size: 0.85rem;" title="Tasdiqlangan sotuvchi"></i>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Box -->
+        <div style="margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-light);">
+          {% if product.discount_price %}
+            <div style="font-size: 1.05rem; color: var(--text-light); text-decoration: line-through; margin-bottom: 4px;">
+              {{ product.price|floatformat:0 }} so'm
+            </div>
+          {% endif %}
+          <div style="font-size: 2.4rem; font-weight: 800; font-family: 'Outfit', sans-serif; color: var(--text-main);">
+            {{ product.current_price|floatformat:0 }} <span style="font-size: 1.2rem; font-weight: 600; color: var(--text-muted);">so'm</span>
+          </div>
+        </div>
+
+        <!-- Quantity & Add To Cart Button -->
+        {% if product.is_in_stock %}
+          <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 30px; flex-wrap: wrap;">
+            
+            <!-- Quantity Counter -->
+            <div style="display: inline-flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-md); background: var(--bg-subtle); overflow: hidden;">
+              <button type="button" onclick="adjustDetailQty(-1)" style="border: none; background: transparent; width: 38px; height: 42px; cursor: pointer; font-size: 1.1rem; color: var(--text-main);">
+                <i class="fas fa-minus"></i>
+              </button>
+              <input type="number" id="quantity-{{ product.id }}" value="1" min="1" max="{{ product.stock }}" style="width: 50px; text-align: center; border: none; background: transparent; font-weight: 700; font-size: 1.05rem;">
+              <button type="button" onclick="adjustDetailQty(1)" style="border: none; background: transparent; width: 38px; height: 42px; cursor: pointer; font-size: 1.1rem; color: var(--text-main);">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+
+            <!-- Add to Cart AJAX Button -->
+            <button type="button" class="btn btn-primary btn-lg ajax-add-to-cart" data-product-id="{{ product.id }}" style="flex: 1; min-width: 200px;">
+              <i class="fas fa-cart-plus"></i>
+              <span>Savatga qo'shish</span>
+            </button>
+
+          </div>
+        {% else %}
+          <div class="alert alert-warning" style="margin-bottom: 24px;">
+            <i class="fas fa-triangle-exclamation"></i> Ushbu mahsulot hozirda omborda tugagan. Tez orada qayta sotuvga chiqariladi.
+          </div>
+        {% endif %}
+
+        <!-- Description Accordion / Tab -->
+        <div>
+          <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Mahsulot tavsifi</h4>
+          <div style="font-size: 0.95rem; line-height: 1.8; color: var(--text-muted); white-space: pre-line;">
+            {{ product.description }}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products %}
+    <div style="margin-top: 50px;">
+      <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 24px;">O'xshash mahsulotlar</h3>
+      <div class="product-grid" style="margin-top: 0;">
+        {% for rel in related_products %}
+          <div class="product-card">
+            <div class="product-image-wrap">
+              {% if rel.main_image %}
+                <img src="{{ rel.main_image.url }}" alt="{{ rel.name }}" loading="lazy">
+              {% else %}
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8; font-size: 2.5rem;">
+                  <i class="fas fa-image"></i>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="product-content">
+              <span class="product-category">{{ rel.category.name }}</span>
+              <a href="{{ rel.get_absolute_url }}" class="product-title">{{ rel.name }}</a>
+              <div class="product-pricing">
+                <div class="current-price">{{ rel.current_price|floatformat:0 }} <span>so'm</span></div>
+                {% if rel.is_in_stock %}
+                  <button type="button" class="btn-add-cart ajax-add-to-cart" data-product-id="{{ rel.id }}" title="Savatga qo'shish">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function changeMainImage(url, thumbElement) {
+    const mainImg = document.getElementById('main-product-image');
+    if (mainImg) mainImg.src = url;
+
+    document.querySelectorAll('.thumb-wrap').forEach(t => {
+      t.style.borderColor = 'var(--border-light)';
+      t.style.opacity = '0.7';
+    });
+    thumbElement.style.borderColor = 'var(--primary)';
+    thumbElement.style.opacity = '1';
+  }
+
+  function adjustDetailQty(delta) {
+    const input = document.getElementById('quantity-{{ product.id }}');
+    if (!input) return;
+    let val = parseInt(input.value) || 1;
+    val += delta;
+    const max = parseInt(input.max) || 999;
+    if (val < 1) val = 1;
+    if (val > max) val = max;
+    input.value = val;
+  }
+</script>
+{% endblock %}

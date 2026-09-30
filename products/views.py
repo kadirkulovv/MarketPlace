@@ -8,7 +8,6 @@ from .filters import ProductFilter
 def home_view(request):
     products = Product.objects.filter(is_active=True).select_related('category', 'seller')
     
-    # Ordering
     sort = request.GET.get('sort', 'newest')
     if sort == 'price_asc':
         products = products.order_by('price')
@@ -42,7 +41,6 @@ def home_view(request):
 
 def category_products_view(request, slug):
     category = get_object_or_404(Category, slug=slug, is_active=True)
-    # Tanlangan kategoriya va uning barcha ichki (avlod) kategoriyalaridagi mahsulotlar
     categories = category.get_descendants(include_self=True)
     products = Product.objects.filter(category__in=categories, is_active=True).select_related('category', 'seller')
 
@@ -77,7 +75,6 @@ def product_detail_view(request, slug):
         slug=slug,
         is_active=True
     )
-    # Related products from same category or parent
     related_categories = product.category.get_descendants(include_self=True)
     related_products = Product.objects.filter(
         category__in=related_categories,

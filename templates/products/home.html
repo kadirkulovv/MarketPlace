@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MarketPlace — Barcha mahsulotlar va toifalar{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner Section -->
+<section style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); color: white; padding: 50px 0; margin-bottom: 40px; position: relative; overflow: hidden; border-radius: 0 0 var(--radius-xl) var(--radius-xl);">
+  <div class="container" style="position: relative; z-index: 2;">
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center;">
+      <div>
+        <span class="badge" style="background: rgba(255,255,255,0.15); color: #c7d2fe; margin-bottom: 14px; padding: 6px 14px; font-size: 0.85rem;">
+          <i class="fas fa-sparkles" style="color: #fbbf24;"></i> Eng sara va sifatli tovarlar
+        </span>
+        <h1 style="font-size: 2.7rem; font-weight: 800; color: white; line-height: 1.15; margin-bottom: 16px;">
+          O'zingizga kerakli hamma narsani bir joyda toping
+        </h1>
+        <p style="font-size: 1.05rem; color: #c7d2fe; margin-bottom: 26px; line-height: 1.6;">
+          Elektronika, smartfonlar, maishiy texnika va yana minglab tovarlar kafolatlangan narxlarda va tez yetkazib berish bilan!
+        </p>
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <a href="#products-section" class="btn btn-primary" style="background: white; color: var(--primary); font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <i class="fas fa-bag-shopping"></i> Xaridni boshlash
+          </a>
+          {% if not user.is_seller %}
+            <a href="{% url 'accounts:register' %}?role=seller" class="btn" style="background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25);">
+              <i class="fas fa-store"></i> Sotuvchi bo'lish
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center;">
+        <img src="{% static 'images/hero-banner.jpg' %}" alt="MarketPlace Tech Deals" style="max-height: 320px; width: 100%; object-fit: cover; border-radius: var(--radius-lg); box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.15);">
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container" id="products-section" style="padding-bottom: 80px;">
+
+  <!-- Featured Categories Horizontal Scroll / Grid -->
+  {% if featured_categories %}
+    <div style="margin-bottom: 40px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="font-size: 1.4rem; font-weight: 800;">Ommabop kategoriyalar</h3>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        {% for cat in featured_categories %}
+          <a href="{{ cat.get_absolute_url }}" style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 18px; display: flex; align-items: center; gap: 14px; transition: var(--transition); box-shadow: var(--shadow-sm);" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--border-light)';">
+            <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <div>
+              <h5 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">{{ cat.name }}</h5>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">{{ cat.products.count }} ta tovar</span>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Filter and Search Header -->
+  <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 30px; box-shadow: var(--shadow-sm);">
+    <form method="GET" action="{% url 'products:home' %}" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+      
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; flex: 1;">
+        <!-- Search Keyword -->
+        <div style="min-width: 220px; flex: 1;">
+          <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="form-input" placeholder="Nomi bo'yicha qidirish..." style="padding: 9px 14px;">
+        </div>
+
+        <!-- Category Dropdown -->
+        <div style="min-width: 180px;">
+          <select name="category" class="form-select" style="padding: 9px 14px;">
+            <option value="">Barcha kategoriyalar</option>
+            {% for cat in all_active_categories %}
+              <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                {% if cat.level > 0 %}{% for i in "x"|rjust:cat.level %}&nbsp;&nbsp;&bull;{% endfor %}&nbsp;{% endif %}{{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Price Range -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <input type="number" name="min_price" value="{{ request.GET.min_price|default:'' }}" class="form-input" placeholder="Min so'm" style="width: 110px; padding: 9px 12px;">
+          <span>—</span>
+          <input type="number" name="max_price" value="{{ request.GET.max_price|default:'' }}" class="form-input" placeholder="Maks so'm" style="width: 110px; padding: 9px 12px;">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="fas fa-filter"></i> Filtrlash
+        </button>
+
+        {% if request.GET %}
+          <a href="{% url 'products:home' %}" class="btn btn-secondary btn-sm" title="Filtrlarni tozalash">
+            <i class="fas fa-rotate-left"></i>
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Sorting Select -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <label style="font-size: 0.88rem; font-weight: 600; color: var(--text-muted); white-space: nowrap;">Saralash:</label>
+        <select name="sort" class="form-select" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.88rem; width: auto;">
+          <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Yangi qo'shilganlar</option>
+          <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Narxi: arzondan qimmatga</option>
+          <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Narxi: qimmatdan arzonga</option>
+        </select>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Products Section Title -->
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <h3 style="font-size: 1.5rem; font-weight: 800;">
+      Barcha mahsulotlar 
+      <span style="font-size: 0.95rem; font-weight: 600; color: var(--text-muted); margin-left: 8px;">({{ total_count }} ta topildi)</span>
+    </h3>
+  </div>
+
+  <!-- Products Grid -->
+  {% if page_obj.object_list %}
+    <div class="product-grid">
+      {% for product in page_obj %}
+        <div class="product-card">
+          
+          <div class="product-image-wrap">
+            {% if product.main_image %}
+              <img src="{{ product.main_image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: #94a3b8; font-size: 2.5rem;">
+                <i class="fas fa-image"></i>
+              </div>
+            {% endif %}
+
+            {% if product.discount_percent > 0 %}
+              <span class="badge-discount">-{{ product.discount_percent }}%</span>
+            {% endif %}
+
+            <span class="badge-stock">
+              {% if product.is_in_stock %}
+                {{ product.stock }} dona qoldi
+              {% else %}
+                Qolmagan
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="product-content">
+            <span class="product-category">{{ product.category.name }}</span>
+            <a href="{{ product.get_absolute_url }}" class="product-title" title="{{ product.name }}">
+              {{ product.name }}
+            </a>
+
+            <div class="product-seller">
+              <i class="fas fa-store" style="color: var(--primary);"></i>
+              <span>{{ product.seller.shop_name|default:product.seller.username }}</span>
+            </div>
+
+            <div class="product-pricing">
+              <div>
+                {% if product.discount_price %}
+                  <span class="old-price">{{ product.price|floatformat:0 }} so'm</span>
+                {% endif %}
+                <div class="current-price">
+                  {{ product.current_price|floatformat:0 }} <span>so'm</span>
+                </div>
+              </div>
+
+              {% if product.is_in_stock %}
+                <button type="button" class="btn-add-cart ajax-add-to-cart" data-product-id="{{ product.id }}" title="Savatga qo'shish">
+                  <i class="fas fa-plus"></i>
+                </button>
+              {% else %}
+                <button type="button" class="btn-add-cart" disabled style="opacity: 0.4; cursor: not-allowed;" title="Tugagan">
+                  <i class="fas fa-ban"></i>
+                </button>
+              {% endif %}
+            </div>
+
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}&category={{ request.GET.category }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="page-link active">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}&q={{ request.GET.q }}&category={{ request.GET.category }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}&category={{ request.GET.category }}&min_price={{ request.GET.min_price }}&max_price={{ request.GET.max_price }}&sort={{ current_sort }}" class="page-link">
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  {% else %}
+    <!-- Empty State -->
+    <div style="text-align: center; padding: 70px 20px; background: white; border-radius: var(--radius-xl); border: 1px dashed var(--border-light);">
+      <div style="width: 70px; height: 70px; border-radius: 50%; background: var(--bg-subtle); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--text-light); margin-bottom: 16px;">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <h3 style="font-size: 1.3rem; margin-bottom: 8px;">Mahsulotlar topilmadi</h3>
+      <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 20px;">
+        Qidiruv shartlarini o'zgartirib ko'ring yoki barcha mahsulotlar ro'yxatiga qayting.
+      </p>
+      <a href="{% url 'products:home' %}" class="btn btn-primary btn-sm">Barcha tovarlarni ko'rish</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

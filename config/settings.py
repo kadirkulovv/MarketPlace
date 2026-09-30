@@ -144,3 +144,77 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 AUTH_USER_MODEL = 'accounts.User'
+
+# Jazzmin Admin Panel Configuration
+JAZZMIN_SETTINGS = {
+    "site_title": "MarketPlace Admin",
+    "site_header": "MarketPlace",
+    "site_brand": "MarketPlace Admin",
+    "site_logo_classes": "img-circle",
+    "welcome_sign": "MarketPlace boshqaruv paneliga xush kelibsiz!",
+    "copyright": "MarketPlace LLC",
+    "search_model": ["products.Product", "accounts.User", "orders.Order"],
+    "user_avatar": "avatar",
+    "topmenu_links": [
+        {"name": "Bosh sahifa (Sayt)", "url": "products:home", "permissions": ["auth.view_user"]},
+        {"name": "Sotuvchi kabineti", "url": "dashboard:seller_dashboard", "permissions": ["products.add_product"]},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "accounts.user": "fas fa-user",
+        "products.category": "fas fa-folder-tree",
+        "products.product": "fas fa-box-open",
+        "products.productimage": "fas fa-images",
+        "orders.order": "fas fa-shopping-cart",
+        "orders.orderitem": "fas fa-receipt",
+        "cart.cart": "fas fa-basket-shopping",
+        "cart.cartitem": "fas fa-list-check",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "custom_css": None,
+    "custom_js": None,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "accounts.user": "collapsible",
+        "products.product": "horizontal_tabs",
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-indigo",
+    "accent": "accent-primary",
+    "navbar": "navbar-dark navbar-indigo",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-indigo",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "theme_mode": "auto",
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}
