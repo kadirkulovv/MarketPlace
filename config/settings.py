@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "mptt",
     'import_export',
     'django_filters',
+    'orders',
+    "cart",
 ]
 
 MIDDLEWARE = [
